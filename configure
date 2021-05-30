@@ -398,17 +398,21 @@ ARB_SOLIB=0
 if [ -z "$ARB_LIB" ]; then
    case "$OS" in
       Darwin)
-         ARB_LIBNAME="libarb.dylib"
-	 ARB_LIB="libarb-$ARB_MAJOR.$ARB_MINOR.$ARB_PATCH.dylib"
-         EXTRA_SHARED_FLAGS="-install_name $PREFIX/lib/$ARB_LIB -compatibility_version $ARB_MAJOR.$ARB_MINOR -current_version $ARB_MAJOR.$ARB_MINOR.$ARB_PATCH";;
+	 ARB_LIBNAME="libarb.dylib"
+	 ARB_LIB="libarb.$ARB_MAJOR.dylib"
+	 ARB_SONAME="libarb.$ARB_MAJOR.dylib"
+	 EXTRA_SHARED_FLAGS="-install_name $PREFIX/lib/$ARB_SONAME -compatibility_version $ARB_MAJOR -current_version $ARB_MAJOR.$ARB_MINOR.$ARB_PATCH";;
       CYGWIN* | MINGW*)
-         ARB_LIBNAME="libarb.dll"
+	 ARB_LIBNAME="libarb.dll"
 	 ARB_LIB="libarb-$ARB_MAJOR.dll"
-	 EXTRA_SHARED_FLAGS="-static-libgcc -shared -Wl,--export-all-symbols -Wl,-soname,libarb-$ARB_MAJOR.dll.$ARB_MINOR.$ARB_PATCH";;
+	 ARB_SONAME="libarb-$ARB_MAJOR.dll"
+	 ARB_IMPLIBNAME="libarb.dll.a"
+	 EXTRA_SHARED_FLAGS="-static-libgcc -shared -Wl,--export-all-symbols -Wl,-soname,$ARB_SONAME -Wl,--out-implib,$ARB_IMPLIBNAME";;
       *)
-         ARB_LIBNAME="libarb.so"
+	 ARB_LIBNAME="libarb.so"
+	 ARB_SONAME="libarb.so.$ARB_MAJOR"
 	 ARB_LIB="libarb.so.$ARB_MAJOR.$ARB_MINOR.$ARB_PATCH"
-	 EXTRA_SHARED_FLAGS="-Wl,-soname,libarb.so.$ARB_MAJOR"
+	 EXTRA_SHARED_FLAGS="-Wl,-soname,$ARB_SONAME"
 	 ARB_SOLIB=1;;
    esac
    EXTRA_SHARED_FLAGS="$EXTRA_SHARED_FLAGS -Wl,-rpath,${GMP_LIB_DIR} -Wl,-rpath,${MPFR_LIB_DIR} -Wl,-rpath,${FLINT_LIB_DIR}"
@@ -633,6 +637,8 @@ echo "ARB_STATIC=$STATIC" >> Makefile
 echo "ARB_SHARED=$SHARED" >> Makefile
 echo "ARB_LIB=$ARB_LIB" >> Makefile
 echo "ARB_LIBNAME=$ARB_LIBNAME" >> Makefile
+echo "ARB_SONAME=$ARB_SONAME" >> Makefile
+echo "ARB_IMPLIBNAME=$ARB_IMPLIBNAME" >> Makefile
 echo "ARB_MAJOR=$ARB_MAJOR" >> Makefile
 echo "ARB_SOLIB=$ARB_SOLIB" >> Makefile
 echo "EXEEXT=$EXEEXT" >> Makefile

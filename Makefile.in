@@ -97,7 +97,9 @@ $(ARB_LIB): $(LOBJS) $(LIB_SOURCES) $(EXT_SOURCES) $(HEADERS) $(EXT_HEADERS)
 		$(LDCONFIG) -n "$(CURDIR)"; \
 	fi
 	ln -sf "$(ARB_LIB)" "$(ARB_LIBNAME)"; \
-	ln -sf "$(ARB_LIB)" "$(ARB_LIBNAME).$(ARB_MAJOR)"; \
+	$(AT)if [ "$(ARB_LIB)" -ne "$(ARB_SONAME)" ]; then \
+		ln -sf "$(ARB_LIB)" "$(ARB_SONAME)"; \
+	fi
 
 libarb.a: $(OBJS) $(LIB_SOURCES) $(EXT_SOURCES) $(HEADERS) $(EXT_HEADERS)
 	$(AT)$(foreach ext, $(EXTENSIONS), $(foreach dir, $(patsubst $(ext)/%.h, %, $(wildcard $(ext)/*.h)), mkdir -p build/$(dir); BUILD_DIR=$(CURDIR)/build/$(dir); export BUILD_DIR; MOD_DIR=$(dir); export MOD_DIR; $(MAKE) -f $(CURDIR)/Makefile.subdirs -C $(ext)/$(dir) static || exit $$?;))
@@ -151,6 +153,9 @@ install: library
 	$(AT)if [ "$(ARB_SHARED)" -eq "1" ]; then \
 		cp $(ARB_LIB) "$(DESTDIR)$(PREFIX)/$(LIBDIR)"; \
 		cp -a $(shell ls $(ARB_LIBNAME)*) "$(DESTDIR)$(PREFIX)/$(LIBDIR)"; \
+		if [ ! -z "$(ARB_IMPLIBNAME)" ]; then \
+			cp "$(ARB_IMPLIBNAME)" "$(DESTDIR)$(PREFIX)/$(LIBDIR)"; \
+		fi \
 	fi
 	$(AT)if [ "$(ARB_STATIC)" -eq "1" ]; then \
 		cp libarb.a $(DESTDIR)$(PREFIX)/$(LIBDIR); \
