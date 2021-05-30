@@ -9,11 +9,25 @@ os:
   - osx
   - linux
 
+arch:
+  - amd64
+  - ppc64le
+
+
 osx_image: xcode7
 
 compiler:
   - gcc
   - clang
+
+
+matrix:
+   exclude:
+      - os: osx
+        arch: ppc64le
+      - os: linux
+        arch: ppc64le
+        compiler: clang
 
 script:
   - if [[ "${TRAVIS_OS_NAME}" == "osx" ]] && [[ "${CC}" == "gcc" ]]; then
