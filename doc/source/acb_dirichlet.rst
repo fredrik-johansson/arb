@@ -756,9 +756,9 @@ and formulas described by David J. Platt in [Pla2017]_.
 
 .. function:: void acb_dirichlet_platt_scaled_lambda_vec(arb_ptr res, const fmpz_t T, slong A, slong B, slong prec)
 
-.. function:: void acb_dirichlet_platt_multieval(arb_ptr res, const fmpz_t T, slong A, slong B, const arb_t h, slong J, slong K, slong sigma, slong prec)
+.. function:: void acb_dirichlet_platt_multieval(arb_ptr res, const fmpz_t T, slong A, slong B, const arb_t h, const fmpz_t J, slong K, slong sigma, slong prec)
 
-.. function:: void acb_dirichlet_platt_multieval_threaded(arb_ptr res, const fmpz_t T, slong A, slong B, const arb_t h, slong J, slong K, slong sigma, slong prec)
+.. function:: void acb_dirichlet_platt_multieval_threaded(arb_ptr res, const fmpz_t T, slong A, slong B, const arb_t h, const fmpz_t J, slong K, slong sigma, slong prec)
 
     Compute :func:`acb_dirichlet_platt_scaled_lambda` at `N=AB` points on a
     grid, following the notation of [Pla2017]_. The first point on the grid
@@ -783,7 +783,7 @@ and formulas described by David J. Platt in [Pla2017]_.
     interpolation. *sigma* is an odd positive integer tuning parameter
     `\sigma \in 2\mathbb{Z}_{>0}+1` used in computing error bounds.
 
-.. function:: slong _acb_dirichlet_platt_local_hardy_z_zeros(arb_ptr res, const fmpz_t n, slong len, const fmpz_t T, slong A, slong B, const arb_t h, slong J, slong K, slong sigma_grid, slong Ns_max, const arb_t H, slong sigma_interp, slong prec)
+.. function:: slong _acb_dirichlet_platt_local_hardy_z_zeros(arb_ptr res, const fmpz_t n, slong len, const fmpz_t T, slong A, slong B, const arb_t h, const fmpz_t J, slong K, slong sigma_grid, slong Ns_max, const arb_t H, slong sigma_interp, slong prec)
 .. function:: slong acb_dirichlet_platt_local_hardy_z_zeros(arb_ptr res, const fmpz_t n, slong len, slong prec)
 .. function:: slong acb_dirichlet_platt_hardy_z_zeros(arb_ptr res, const fmpz_t n, slong len, slong prec)
 

@@ -463,6 +463,24 @@ squarefree factorization::
     -1.0000
     cpu/wall(s): 0 0.001
 
+zeta_zeros.c
+-------------------------------------------------------------------------------
+
+This program finds the imaginary parts of consecutive nontrivial zeros
+of the Riemann zeta function by calling either
+:func:`acb_dirichlet_hardy_z_zeros` or
+:func:`acb_dirichlet_platt_local_hardy_z_zeros` depending on the height
+of the zeros and the number of zeros requested.
+The program takes the following arguments::
+
+    zeta_zeros [-n n] [-count n] [-prec n] [-threads n] [-platt] [-noplatt] [-v] [-verbose] [-h] [-help]
+
+    > build/examples/zeta_zeros -n 1048449114 -count 2
+    1048449114      [388858886.0022851217767970582 +/- 7.46e-20]
+    1048449115      [388858886.0023936897027167201 +/- 7.59e-20]
+    cpu/wall(s): 0.255 0.255
+    virt/peak/res/peak(MB): 26.77 26.77 7.88 7.88
+
 complex_plot.c
 -------------------------------------------------------------------------------
 

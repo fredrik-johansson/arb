@@ -15,9 +15,9 @@ int main()
 {
     /* Check a specific combination of parameter values that is relatively fast
      * to evaluate and that has relatively tight bounds. */
-    slong A, B, J, K, sigma_grid, Ns_max, sigma_interp;
+    slong A, B, K, sigma_grid, Ns_max, sigma_interp;
     arb_t h, H;
-    fmpz_t T, n;
+    fmpz_t J, T, n;
     arb_ptr pa, pb;
     slong count, i;
     slong maxcount = 50;
@@ -28,6 +28,7 @@ int main()
 
     arb_init(h);
     arb_init(H);
+    fmpz_init(J);
     fmpz_init(T);
     fmpz_init(n);
     pa = _arb_vec_init(maxcount);
@@ -41,7 +42,7 @@ int main()
     B = 128;
 
     /* tuning parameters for the evaluation of grid points */
-    J = 1000;
+    fmpz_set_si(J, 1000);
     K = 30;
     sigma_grid = 63;
     arb_set_d(h, 4.5);
@@ -76,6 +77,7 @@ int main()
 
     arb_clear(h);
     arb_clear(H);
+    fmpz_clear(J);
     fmpz_clear(T);
     fmpz_clear(n);
     _arb_vec_clear(pa, maxcount);

@@ -55,7 +55,7 @@ typedef const platt_ctx_struct * platt_ctx_srcptr;
 static void
 platt_ctx_init(platt_ctx_t ctx,
         const fmpz_t T, slong A, slong B,
-        const arb_t h, slong J, slong K, slong sigma_grid,
+        const arb_t h, const fmpz_t J, slong K, slong sigma_grid,
         slong Ns_max, const arb_t H, slong sigma_interp, slong prec)
 {
     fmpz_init(&ctx->T);
@@ -1097,7 +1097,7 @@ slong
 _acb_dirichlet_platt_isolate_local_hardy_z_zeros(
         arf_interval_ptr res, const fmpz_t n, slong len,
         const fmpz_t T, slong A, slong B,
-        const arb_t h, slong J, slong K, slong sigma_grid,
+        const arb_t h, const fmpz_t J, slong K, slong sigma_grid,
         slong Ns_max, const arb_t H, slong sigma_interp, slong prec)
 {
     slong zeros_count;
@@ -1296,7 +1296,7 @@ slong
 _acb_dirichlet_platt_local_hardy_z_zeros(
         arb_ptr res, const fmpz_t n, slong len,
         const fmpz_t T, slong A, slong B,
-        const arb_t h, slong J, slong K, slong sigma_grid,
+        const arb_t h, const fmpz_t J, slong K, slong sigma_grid,
         slong Ns_max, const arb_t H, slong sigma_interp, slong prec)
 {
     slong zeros_count, i;
@@ -1345,9 +1345,9 @@ static platt_ctx_ptr
 _create_heuristic_context(const fmpz_t n, slong prec)
 {
     platt_ctx_ptr p = NULL;
-    slong J, K, A, B, Ns_max, sigma_grid, sigma_interp;
+    slong K, A, B, Ns_max, sigma_grid, sigma_interp;
     slong kbits;
-    fmpz_t T, k;
+    fmpz_t J, T, k;
     arb_t g, h, H, logT;
     double dlogJ, dK, dgrid, dh, dH, dinterp;
     double x, x2, x3, x4;
@@ -1436,7 +1436,7 @@ _create_heuristic_context(const fmpz_t n, slong prec)
 
     arb_set_d(h, dh);
     arb_set_d(H, dH);
-    J = (slong) exp(dlogJ);
+    fmpz_set_si(J, (slong) exp(dlogJ));
     K = (slong) dK;
     sigma_grid = ((slong) (dgrid/2))*2 + 1;
     sigma_interp = ((slong) (dinterp/2))*2 + 1;

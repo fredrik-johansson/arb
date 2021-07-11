@@ -280,23 +280,25 @@ void acb_dirichlet_platt_lemma_A9(arb_t out, slong sigma, const arb_t t0,
 void acb_dirichlet_platt_lemma_A11(arb_t out, const arb_t t0, const arb_t h,
     slong B, slong prec);
 void acb_dirichlet_platt_lemma_B1(arb_t out, slong sigma, const arb_t t0,
-    const arb_t h, slong J, slong prec);
+    const arb_t h, const fmpz_t J, slong prec);
 void acb_dirichlet_platt_lemma_B2(arb_t out, slong K, const arb_t h,
     const arb_t xi, slong prec);
 
 /* Platt DFT grid evaluation of scaled Lambda */
 
 void acb_dirichlet_platt_multieval(arb_ptr out, const fmpz_t T,
-    slong A, slong B, const arb_t h, slong J, slong K, slong sigma, slong prec);
+    slong A, slong B, const arb_t h, const fmpz_t J, slong K,
+    slong sigma, slong prec);
 void acb_dirichlet_platt_multieval_threaded(arb_ptr out, const fmpz_t T,
-    slong A, slong B, const arb_t h, slong J, slong K, slong sigma, slong prec);
+    slong A, slong B, const arb_t h, const fmpz_t J, slong K,
+    slong sigma, slong prec);
 
 /* Platt Hardy Z zeros */
 
 slong _acb_dirichlet_platt_local_hardy_z_zeros(
     arb_ptr res, const fmpz_t n, slong len,
     const fmpz_t T, slong A, slong B,
-    const arb_t h, slong J, slong K, slong sigma_grid,
+    const arb_t h, const fmpz_t J, slong K, slong sigma_grid,
     slong Ns_max, const arb_t H, slong sigma_interp, slong prec);
 slong acb_dirichlet_platt_local_hardy_z_zeros(
     arb_ptr res, const fmpz_t n, slong len, slong prec);

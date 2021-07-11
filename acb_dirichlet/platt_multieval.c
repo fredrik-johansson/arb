@@ -167,10 +167,10 @@ platt_g_table(acb_ptr table, slong A, slong B,
 }
 
 static void
-logjsqrtpi(arb_t out, slong j, slong prec)
+logjsqrtpi(arb_t out, const fmpz_t j, slong prec)
 {
     arb_const_sqrt_pi(out, prec);
-    arb_mul_si(out, out, j, prec);
+    arb_mul_fmpz(out, out, j, prec);
     arb_log(out, out, prec);
 }
 
@@ -209,15 +209,17 @@ _acb_vec_scalar_add_error_arb_mag(acb_ptr res, slong len, const arb_t x)
  * log(j*sqrt(pi))/(2*pi) >= m/B - 1/(2*B)
  */
 void
-get_smk_points(slong * res, slong A, slong B)
+get_smk_points(fmpz * res, slong A, slong B)
 {
     slong m, N, prec;
     arb_t x, u, v;
     fmpz_t z;
+
     arb_init(x);
     arb_init(u); /* pi / B */
     arb_init(v); /* 1 / sqrt(pi) */
     fmpz_init(z);
+
     N = A*B;
     prec = 4;
     arb_indeterminate(u);
@@ -233,7 +235,7 @@ get_smk_points(slong * res, slong A, slong B)
             arb_ceil(x, x, prec);
             if (arb_get_unique_fmpz(z, x))
             {
-                res[m] = fmpz_get_si(z);
+                fmpz_set(res + m, z);
                 break;
             }
             else
@@ -253,7 +255,7 @@ get_smk_points(slong * res, slong A, slong B)
 }
 
 slong
-platt_get_smk_index(slong B, slong j, slong prec)
+platt_get_smk_index(slong B, const fmpz_t j, slong prec)
 {
     slong m;
     arb_t pi, x;
@@ -356,11 +358,12 @@ smk_block_accumulate(smk_block_t p, acb_ptr res, slong prec)
 
 void
 _platt_smk(acb_ptr table, acb_ptr startvec, acb_ptr stopvec,
-        const slong * smk_points, const arb_t t0, slong A, slong B,
-        slong jstart, slong jstop, slong mstart, slong mstop,
+        const fmpz * smk_points, const arb_t t0, slong A, slong B,
+        const fmpz_t jstart, const fmpz_t jstop, slong mstart, slong mstop,
         slong K, slong prec)
 {
-    slong j, k, m;
+    fmpz_t j, j_plus_one;
+    slong k, m;
     slong N = A * B;
     smk_block_t block;
     acb_ptr accum;
@@ -368,6 +371,8 @@ _platt_smk(acb_ptr table, acb_ptr startvec, acb_ptr stopvec,
     arb_t rpi, logsqrtpi, rsqrtj, um, a, base;
     acb_t z;
 
+    fmpz_init(j);
+    fmpz_init(j_plus_one);
     arb_init(rpi);
     arb_init(logsqrtpi);
     arb_init(rsqrtj);
@@ -387,13 +392,15 @@ _platt_smk(acb_ptr table, acb_ptr startvec, acb_ptr stopvec,
     m = platt_get_smk_index(B, jstart, prec);
     _arb_div_si_si(um, m, B, prec);
 
-    for (j = jstart; j <= jstop; j++)
+    for (fmpz_set(j, jstart); fmpz_cmp(j, jstop) <= 0; fmpz_add_ui(j, j, 1))
     {
-        arb_log_ui(a, (ulong) j, prec);
+        arb_log_fmpz(a, j, prec);
         arb_add(a, a, logsqrtpi, prec);
         arb_mul(a, a, rpi, prec);
 
-        arb_rsqrt_ui(rsqrtj, (ulong) j, prec);
+        /* todo arb_rsqrt_fmpz */
+        arb_sqrt_fmpz(rsqrtj, j, prec);
+        arb_inv(rsqrtj, rsqrtj, prec);
 
         acb_set_arb(z, t0);
         acb_mul_arb(z, z, a, prec);
@@ -401,7 +408,7 @@ _platt_smk(acb_ptr table, acb_ptr startvec, acb_ptr stopvec,
         acb_exp_pi_i(z, z, prec);
         acb_mul_arb(z, z, rsqrtj, prec);
 
-        while (m < N - 1 && smk_points[m + 1] <= j)
+        while (m < N - 1 && fmpz_cmp(smk_points + m + 1, j) <= 0)
         {
             m += 1;
             _arb_div_si_si(um, m, B, prec);
@@ -421,8 +428,12 @@ _platt_smk(acb_ptr table, acb_ptr startvec, acb_ptr stopvec,
         smk_block_increment(block, z, diff_powers);
 
         {
-            int j_stops = j == jstop;
-            int m_increases = m < N - 1 && smk_points[m + 1] <= j + 1;
+            int j_stops, m_increases;
+
+            fmpz_add_ui(j_plus_one, j, 1);
+            j_stops = fmpz_equal(j, jstop);
+            m_increases = (m < N - 1 &&
+                           fmpz_cmp(smk_points + m + 1, j_plus_one) <= 0);
             if (j_stops || m_increases || smk_block_is_full(block))
             {
                 smk_block_accumulate(block, accum, prec);
@@ -448,6 +459,8 @@ _platt_smk(acb_ptr table, acb_ptr startvec, acb_ptr stopvec,
         }
     }
 
+    fmpz_clear(j);
+    fmpz_clear(j_plus_one);
     arb_clear(rpi);
     arb_clear(logsqrtpi);
     arb_clear(rsqrtj);
@@ -539,7 +552,7 @@ remove_gaussian_window(arb_ptr out, slong A, slong B, const arb_t h, slong prec)
 
 void
 _acb_dirichlet_platt_multieval(arb_ptr out, acb_srcptr S_table,
-        const arb_t t0, slong A, slong B, const arb_t h, slong J,
+        const arb_t t0, slong A, slong B, const arb_t h, const fmpz_t J,
         slong K, slong sigma, slong prec)
 {
     slong N = A*B;
@@ -612,7 +625,7 @@ _acb_dirichlet_platt_multieval(arb_ptr out, acb_srcptr S_table,
     acb_dirichlet_platt_lemma_B1(err, sigma, t0, h, J, prec);
     _acb_vec_scalar_add_error_arb_mag(out_a, N/2 + 1, err);
 
-    arb_sqrt_ui(c, (ulong) J, prec);
+    arb_sqrt_fmpz(c, J, prec);
     arb_mul_2exp_si(c, c, 1);
     arb_sub_ui(c, c, 1, prec);
     acb_dirichlet_platt_lemma_B2(err, K, h, xi, prec);
@@ -660,7 +673,7 @@ _acb_dirichlet_platt_multieval(arb_ptr out, acb_srcptr S_table,
 
 void
 acb_dirichlet_platt_multieval(arb_ptr out, const fmpz_t T, slong A, slong B,
-        const arb_t h, slong J, slong K, slong sigma, slong prec)
+        const arb_t h, const fmpz_t J, slong K, slong sigma, slong prec)
 {
     if (flint_get_num_threads() > 1)
     {
@@ -672,23 +685,29 @@ acb_dirichlet_platt_multieval(arb_ptr out, const fmpz_t T, slong A, slong B,
         slong N = A*B;
         acb_ptr S;
         arb_t t0;
-        slong * smk_points;
+        fmpz_t one;
+        fmpz * smk_points;
 
-        smk_points = flint_malloc(N * sizeof(slong));
+        smk_points = _fmpz_vec_init(N);
         get_smk_points(smk_points, A, B);
+
+        fmpz_init(one);
+        fmpz_one(one);
 
         arb_init(t0);
         S =  _acb_vec_init(K*N);
 
         arb_set_fmpz(t0, T);
 
-        _platt_smk(S, NULL, NULL, smk_points, t0, A, B, 1, J, 0, N-1, K, prec);
+        _platt_smk(S, NULL, NULL, smk_points,
+                   t0, A, B, one, J, 0, N-1, K, prec);
 
         _acb_dirichlet_platt_multieval(out, S, t0, A, B, h, J, K, sigma, prec);
 
         arb_clear(t0);
+        fmpz_clear(one);
         _acb_vec_clear(S, K*N);
-        flint_free(smk_points);
+        _fmpz_vec_clear(smk_points, N);
     }
 }
 

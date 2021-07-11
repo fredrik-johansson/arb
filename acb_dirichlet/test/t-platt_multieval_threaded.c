@@ -47,17 +47,19 @@ int main()
         slong A = 8;
         slong B = 128;
         slong N = A*B;
-        slong J = 1000;
         slong K = 30;
         slong sigma = 63;
         slong prec = 128;
+        fmpz_t J;
         fmpz_t T;
         arb_t h;
         arb_ptr vec;
 
         arb_init(h);
+        fmpz_init(J);
         fmpz_init(T);
 
+        fmpz_set_si(J, 1000);
         fmpz_set_si(T, 10000);
         arb_set_d(h, 4.5);
 
@@ -88,6 +90,7 @@ int main()
             arb_clear(r);
         }
 
+        fmpz_clear(J);
         fmpz_clear(T);
         arb_clear(h);
         _arb_vec_clear(vec, N);
@@ -96,16 +99,15 @@ int main()
     for (iter = 0; iter < 10 * arb_test_multiplier(); iter++)
     {
         slong prec;
-        ulong A, B, N, J, K;
+        ulong A, B, N, K;
         slong sigma, Tbits;
-        fmpz_t T;
+        fmpz_t J, T;
         arb_t h;
         arb_ptr v1, v2;
 
         /* better but slower limits are in parentheses below */
         prec = 2 + n_randint(state, 300);
         sigma = 1 + 2*(1 + n_randint(state, 100)); /* (200) */
-        J = 1 + n_randint(state, 100); /* (10000) */
         K = 1 + n_randint(state, 20); /* (50) */
         A = 1 + n_randint(state, 10);
         B = 1 + n_randint(state, 10); /* (500) */
@@ -115,7 +117,9 @@ int main()
             B *= 2;
         N = A*B;
 
+        fmpz_init(J);
         fmpz_init(T);
+        fmpz_set_si(J, 1 + n_randint(state, 100)); /* (10000) */
         Tbits = 5 + n_randint(state, 15);
         fmpz_set_ui(T, n_randtest_bits(state, Tbits));
 
@@ -135,13 +139,15 @@ int main()
             flint_printf("FAIL: overlap\n\n");
             flint_printf("iter = %wd  prec = %wd\n\n", iter, prec);
             flint_printf("sigma = %wd\n\n", sigma);
-            flint_printf("A = %wu  B = %wu  J = %wu  K = %wu\n\n", A, B, J, K);
+            flint_printf("A = %wu  B = %wu  K = %wu\n\n", A, B, K);
+            flint_printf("J = "); fmpz_print(J); flint_printf("\n\n");
             flint_printf("T = "); fmpz_print(T); flint_printf("\n\n");
             flint_printf("h = "); arb_printn(h, 30, 0); flint_printf("\n\n");
             flint_abort();
         }
 
         arb_clear(h);
+        fmpz_clear(J);
         fmpz_clear(T);
         _arb_vec_clear(v1, N);
         _arb_vec_clear(v2, N);

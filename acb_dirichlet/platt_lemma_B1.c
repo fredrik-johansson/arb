@@ -11,22 +11,11 @@
 
 #include "acb_dirichlet.h"
 
-static void
-_arb_ui_pow_arb(arb_t res, ulong n, const arb_t x, slong prec)
-{
-    arb_t a;
-    arb_init(a);
-    arb_set_ui(a, n);
-    arb_pow(res, a, x, prec);
-    arb_clear(a);
-}
-
 void
 acb_dirichlet_platt_lemma_B1(arb_t out,
-        slong sigma, const arb_t t0, const arb_t h, slong J, slong prec)
+        slong sigma, const arb_t t0, const arb_t h, const fmpz_t J, slong prec)
 {
-    arb_t pi, C;
-    arb_t x1, x2, x3;
+    arb_t pi, C, x1, x2, x3, Ja;
 
     if (sigma % 2 == 0 || sigma < 3)
     {
@@ -39,9 +28,11 @@ acb_dirichlet_platt_lemma_B1(arb_t out,
     arb_init(x1);
     arb_init(x2);
     arb_init(x3);
+    arb_init(Ja);
 
     arb_const_pi(pi, prec);
     acb_dirichlet_platt_c_bound(C, sigma, t0, h, 0, prec);
+    arb_set_fmpz(Ja, J);
 
     arb_set_si(x1, 2*sigma - 1);
     arb_div(x1, x1, h, prec);
@@ -54,7 +45,7 @@ acb_dirichlet_platt_lemma_B1(arb_t out,
     arb_pow(x2, pi, x2, prec);
 
     arb_set_si(x3, 1 - sigma);
-    _arb_ui_pow_arb(x3, (ulong) J, x3, prec);
+    arb_pow(x3, Ja, x3, prec);
     arb_div_si(x3, x3, sigma - 1, prec);
 
     arb_mul(out, x1, x2, prec);
@@ -66,4 +57,5 @@ acb_dirichlet_platt_lemma_B1(arb_t out,
     arb_clear(x1);
     arb_clear(x2);
     arb_clear(x3);
+    arb_clear(Ja);
 }
