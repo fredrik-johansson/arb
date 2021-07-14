@@ -1065,7 +1065,7 @@ Exponentials and logarithms
 
 .. function:: void arb_expm1(arb_t z, const arb_t x, slong prec)
 
-    Sets `z = \exp(x)-1`, computed accurately when `x \approx 0`.
+    Sets `z = \exp(x)-1`, using a more accurate method when `x \approx 0`.
 
 .. function:: void arb_exp_invexp(arb_t z, arb_t w, const arb_t x, slong prec)
 

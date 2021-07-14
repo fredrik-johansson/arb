@@ -662,11 +662,11 @@ Exponentials and logarithms
 
 .. function:: void acb_exp_invexp(acb_t s, acb_t t, const acb_t z, slong prec)
 
-    Sets `v = \exp(z)` and `w = \exp(-z)`.
+    Sets `s = \exp(z)` and `t = \exp(-z)`.
 
 .. function:: void acb_expm1(acb_t res, const acb_t z, slong prec)
 
-    Computes `\exp(z)-1`, using an accurate method when `z \approx 0`.
+    Sets *res* to `\exp(z)-1`, using a more accurate method when `z \approx 0`.
 
 .. function:: void acb_log(acb_t y, const acb_t z, slong prec)
 
